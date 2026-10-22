@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "tool": "tsrs-doctor 0.1.0",
+  "date": "2026-10-22T03:39:59.805Z",
+  "platform": "darwin-arm64, 12 cores",
+  "projectDir": "<repos>/type-fest",
+  "tsconfig": "tsconfig.json",
+  "args": [
+    "-p",
+    "tsconfig.json",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "runs": 5,
+  "baseline": {
+    "name": "tsgo",
+    "bin": "<tsrs-doctor>/node_modules/@typescript/typescript-darwin-arm64/lib/tsc",
+    "version": "Version 7.1.0-dev.20260930.4",
+    "source": "tsrs-doctor"
+  },
+  "tsrs": {
+    "name": "tsrs",
+    "bin": "<tsrs-doctor>/node_modules/@tsrs/darwin-arm64/tsrs",
+    "version": "Version 7.1.0-dev.20260930.4 (tsrs 0.18.0-ts7.1.0-dev.20260929, microsoft/TypeScript@b85298b6a81f)",
+    "source": "tsrs-doctor"
+  },
+  "warnings": [],
+  "crashes": [],
+  "perf": {
+    "baseline": {
+      "wallMs": {
+        "median": 7167.508583999996,
+        "min": 6265.096958,
+        "max": 7472.777542
+      },
+      "cpuMs": {
+        "median": 22565.131,
+        "min": 21371.388,
+        "max": 24158.46
+      },
+      "maxRssBytes": {
+        "median": 7929184256,
+        "min": 7562166272,
+        "max": 8300331008
+      }
+    },
+    "tsrs": {
+      "wallMs": {
+        "median": 2290.3380000000034,
+        "min": 2125.657791999999,
+        "max": 2614.2795829999995
+      },
+      "cpuMs": {
+        "median": 8398.092,
+        "min": 8283.421,
+        "max": 8754.614
+      },
+      "maxRssBytes": {
+        "median": 1971994624,
+        "min": 1967833088,
+        "max": 1985183744
+      }
+    },
+    "speedup": 3.129454510207657,
+    "memoryRatio": 4.0208954727860355
+  },
+  "diagnostics": {
+    "baselineCount": 0,
+    "tsrsCount": 0,
+    "same": 0,
+    "missing": [],
+    "extra": [],
+    "changed": [],
+    "goModeArgs": null
+  }
+}

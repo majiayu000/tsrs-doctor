@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "tool": "tsrs-doctor 0.1.0",
+  "date": "2026-10-22T03:40:22.344Z",
+  "platform": "darwin-arm64, 12 cores",
+  "projectDir": "<repos>/hono",
+  "tsconfig": "tsconfig.spec.json",
+  "args": [
+    "-p",
+    "tsconfig.spec.json",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "runs": 5,
+  "baseline": {
+    "name": "tsgo",
+    "bin": "<repos>/hono/node_modules/@typescript/native-preview-darwin-arm64/lib/tsgo",
+    "version": "Version 7.0.0-dev.20260210.1",
+    "source": "project"
+  },
+  "tsrs": {
+    "name": "tsrs",
+    "bin": "<tsrs-doctor>/node_modules/@tsrs/darwin-arm64/tsrs",
+    "version": "Version 7.1.0-dev.20260930.4 (tsrs 0.18.0-ts7.1.0-dev.20260929, microsoft/TypeScript@b85298b6a81f)",
+    "source": "tsrs-doctor"
+  },
+  "warnings": [
+    "tsrs ports TypeScript 7.1.0-dev.20260930.4 but the baseline is 7.0.0-dev.20260210.1; some differences may come from TypeScript itself."
+  ],
+  "crashes": [],
+  "perf": {
+    "baseline": {
+      "wallMs": {
+        "median": 793.6535839999999,
+        "min": 732.3802080000005,
+        "max": 883.9522499999998
+      },
+      "cpuMs": {
+        "median": 3335.595,
+        "min": 2901.938,
+        "max": 3342.416
+      },
+      "maxRssBytes": {
+        "median": 776732672,
+        "min": 753958912,
+        "max": 786071552
+      }
+    },
+    "tsrs": {
+      "wallMs": {
+        "median": 150.36187500000005,
+        "min": 144.65041699999983,
+        "max": 153.8242909999999
+      },
+      "cpuMs": {
+        "median": 744.632,
+        "min": 724.829,
+        "max": 805.317
+      },
+      "maxRssBytes": {
+        "median": 283262976,
+        "min": 282673152,
+        "max": 283787264
+      }
+    },
+    "speedup": 5.278290018663306,
+    "memoryRatio": 2.742090346463069
+  },
+  "diagnostics": {
+    "baselineCount": 5,
+    "tsrsCount": 6,
+    "same": 4,
+    "missing": [
+      {
+        "text": "src/jsx/index.test.tsx(191,9): error TS2322: Type '({ buffer }: HtmlEscapedCallbackOpts) => void' is not assignable to type 'HtmlEscapedCallback'.\nType 'void' is not assignable to type 'Promise<string> | undefined'.",
+        "unstableInBaseline": false,
+        "goneInGoMode": false
+      }
+    ],
+    "extra": [
+      {
+        "text": "src/helper/css/index.ts(192,31): error TS7031: Binding element 'children' implicitly has an 'any' type.",
+        "unstableInBaseline": false,
+        "goneInGoMode": false
+      },
+      {
+        "text": "src/helper/css/index.ts(192,41): error TS7031: Binding element 'nonce' implicitly has an 'any' type.",
+        "unstableInBaseline": false,
+        "goneInGoMode": false
+      }
+    ],
+    "changed": [],
+    "goModeArgs": [
+      "--checkerAssignment",
+      "go",
+      "--noLazyMembers",
+      "--checkers",
+      "4"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "tsrs-doctor",
+  "version": "0.1.0",
+  "description": "Check if your TypeScript repo can switch to tsrs: diagnostics diff, speed and memory vs tsgo, and VS Code setup",
+  "license": "MIT",
+  "author": "majiayu000",
+  "type": "module",
+  "bin": {
+    "tsrs-doctor": "./src/cli.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "engines": {
+    "bun": ">=1.1"
+  },
+  "keywords": [
+    "tsrs",
+    "tsgo",
+    "typescript",
+    "typescript-7",
+    "benchmark",
+    "diagnostics",
+    "vscode"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsrs -p . --noEmit"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1",
+    "tsrs": "0.18.0-ts7.1.0-dev.20260929",
+    "typescript": "7.1.0-dev.20260930.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.3"
+  }
+}
