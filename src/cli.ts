@@ -2,7 +2,7 @@
 // tsrs-doctor: compare tsgo/tsc with tsrs on your own repository, and set up VS Code.
 
 import { parse as parseJsonc } from "jsonc-parser";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
@@ -48,7 +48,9 @@ function log(s: string) {
 
 async function compare(dir: string, values: Record<string, string | boolean | undefined>, passthrough: string[]) {
   const projectDir = resolve(dir);
-  const tsconfig = (values.project as string | undefined) ?? "tsconfig.json";
+  const project = (values.project as string | undefined) ?? "tsconfig.json";
+  const projectPath = resolve(projectDir, project);
+  const tsconfig = existsSync(projectPath) && statSync(projectPath).isDirectory() ? join(project, "tsconfig.json") : project;
   const tsconfigPath = resolve(projectDir, tsconfig);
   if (!existsSync(tsconfigPath)) throw new DoctorError(`tsconfig not found: ${tsconfigPath}`);
   rejectSolutionConfig(tsconfigPath, tsconfig, dir);
