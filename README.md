@@ -1,6 +1,11 @@
 # tsrs-doctor
 
-**Can your repo switch to [tsrs](https://github.com/oxc-project/tsrs)? One command runs tsgo and tsrs on your own project and tells you whether the diagnostics match, how much faster it is and how much memory it saves. A second command wires tsrs into VS Code.**
+[![CI](https://github.com/majiayu000/tsrs-doctor/actions/workflows/ci.yml/badge.svg)](https://github.com/majiayu000/tsrs-doctor/actions/workflows/ci.yml)
+[![tested with tsrs 0.18.0](https://img.shields.io/badge/tsrs-0.18.0-00a3a3)](https://github.com/oxc-project/tsrs)
+[![TypeScript 7](https://img.shields.io/badge/TypeScript-7.1%20nightly-3178c6)](https://github.com/microsoft/TypeScript)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+**Compare tsgo (TypeScript 7) and [tsrs](https://github.com/oxc-project/tsrs), the Rust port of the TypeScript compiler, on your own repo: one command for a diagnostics diff, a speed and memory benchmark, and VS Code setup.**
 
 ```sh
 bunx tsrs-doctor
@@ -18,7 +23,21 @@ diagnostics: tsgo 0, tsrs 0; same 0, missing in tsrs 0, extra in tsrs 0, text di
 tsrs is 3.1× faster and uses 4.0× less memory than tsgo on this repo, identical diagnostics
 ```
 
-(type-fest, Apple Silicon. More in [`examples/`](examples).)
+Real output on [type-fest](https://github.com/sindresorhus/type-fest) (Apple Silicon). More in [`examples/`](examples).
+
+## How it compares
+
+| | tsrs-doctor | tsrs `bench/run.py` | [ts-checker-bench](https://github.com/danfry1/ts-checker-bench) | [tsc-diagnostics-diff-action](https://github.com/beerose/tsc-diagnostics-diff-action) |
+|---|---|---|---|---|
+| Runs on **your** repo | ✅ | ❌ fixed projects | ❌ fixed projects | ✅ one compiler |
+| One command, no tsrs build | ✅ | ❌ `cargo build` | ⚠️ clone the repo | ✅ |
+| Wall time, CPU, peak RSS | ✅ | ✅ | ✅ | ❌ |
+| Diagnostics matched by file, line and code | ✅ | ❌ counts only | ⚠️ +n / −m | ⚠️ text diff |
+| Flags tsgo run-to-run noise and Go-mode-only differences | ✅ | ❌ | ❌ | ❌ |
+| TypeScript version-skew warning | ✅ | ⚠️ docs | ⚠️ footnote | ❌ |
+| VS Code setup for tsrs ([#661](https://github.com/oxc-project/tsrs/issues/661)) | ✅ | ❌ manual symlink | ❌ | ❌ |
+
+The full feature comparison, including the tsrs companion projects, is in [docs/comparison.md](docs/comparison.md).
 
 ## Why
 
@@ -47,7 +66,7 @@ Exit codes: `0` identical diagnostics, `1` differences or a crash/timeout, `2` t
 
 ## Install
 
-Requires [Bun](https://bun.sh), which reads child-process peak memory directly. macOS arm64 or Linux, the platforms tsrs ships binaries for.
+Requires [Bun](https://bun.sh), which reads child-process peak memory directly. `npx tsrs-doctor` works too when Bun is installed. Supported platforms are macOS arm64 and Linux x64/arm64, the ones tsrs ships binaries for.
 
 ```sh
 bunx tsrs-doctor                 # no install
@@ -70,7 +89,19 @@ tsrs-doctor vscode [dir] [--undo]
   -- <args>              passed to both compilers, e.g. -- --checkers 4
 ```
 
-For a solution-style `tsconfig.json` (only `references`), point `-p` at a referenced project. tsrs-doctor warns when nothing would be checked.
+In a monorepo whose root `tsconfig.json` only lists `references`, tsrs-doctor stops and prints a `-p` command for each referenced project, because that config checks no files.
+
+### In CI
+
+```yaml
+- uses: oven-sh/setup-bun@v2
+- run: bun install
+- run: bunx tsrs-doctor --md tsrs-report.md
+- if: always()
+  run: cat tsrs-report.md >> "$GITHUB_STEP_SUMMARY"
+```
+
+The step fails (exit 1) when tsrs and tsgo disagree. The Markdown report also includes a badge you can paste into your README.
 
 ## VS Code
 

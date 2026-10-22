@@ -1,9 +1,17 @@
 {
   "name": "tsrs-doctor",
   "version": "0.1.0",
-  "description": "Check if your TypeScript repo can switch to tsrs: diagnostics diff, speed and memory vs tsgo, and VS Code setup",
+  "description": "Compare tsgo (TypeScript 7) and tsrs, the Rust TypeScript compiler, on your own repo: diagnostics diff, speed and memory benchmark, and VS Code setup in one command",
   "license": "MIT",
   "author": "majiayu000",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/majiayu000/tsrs-doctor.git"
+  },
+  "homepage": "https://github.com/majiayu000/tsrs-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/majiayu000/tsrs-doctor/issues"
+  },
   "type": "module",
   "bin": {
     "tsrs-doctor": "./bin/tsrs-doctor.js"
@@ -20,9 +28,19 @@
     "tsgo",
     "typescript",
     "typescript-7",
+    "typescript-go",
+    "tsc",
+    "rust",
+    "compiler",
+    "type-checker",
     "benchmark",
     "diagnostics",
-    "vscode"
+    "conformance",
+    "performance",
+    "memory",
+    "vscode",
+    "oxc",
+    "cli"
   ],
   "scripts": {
     "test": "bun test",
