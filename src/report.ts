@@ -144,8 +144,18 @@ function fence(s: string): string {
   return "```\n" + s + "\n```";
 }
 
+/** shields.io static badge for a project README. */
+export function badge(r: Report): string | undefined {
+  if (!r.perf) return undefined;
+  const esc = (s: string) => encodeURIComponent(s).replace(/-/g, "--");
+  const message = `${fmtX(r.perf.speedup)} faster, ${fmtX(r.perf.memoryRatio)} less memory`;
+  return `[![tsrs vs ${r.baseline.name}](https://img.shields.io/badge/tsrs-${esc(message)}-00a3a3)](https://github.com/majiayu000/tsrs-doctor)`;
+}
+
 export function renderMarkdown(r: Report): string {
   const out: string[] = [`# tsrs-doctor report`, "", `**${headline(r)}**`, ""];
+  const b = badge(r);
+  if (b) out.push(b, "", "<details><summary>Badge for your README</summary>", "", fence(b), "", "</details>", "");
   out.push(
     mdTable([
       ["", ""],

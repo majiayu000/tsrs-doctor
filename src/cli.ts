@@ -3,7 +3,7 @@
 
 import { parse as parseJsonc } from "jsonc-parser";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
   alignDiagnostics,
@@ -51,6 +51,7 @@ async function compare(dir: string, values: Record<string, string | boolean | un
   const tsconfig = (values.project as string | undefined) ?? "tsconfig.json";
   const tsconfigPath = resolve(projectDir, tsconfig);
   if (!existsSync(tsconfigPath)) throw new DoctorError(`tsconfig not found: ${tsconfigPath}`);
+  rejectSolutionConfig(tsconfigPath, tsconfig, dir);
   const runs = positiveInt(values.runs as string | undefined, 3, "--runs");
   const timeout = positiveInt(values.timeout as string | undefined, 600, "--timeout");
 
@@ -58,7 +59,7 @@ async function compare(dir: string, values: Record<string, string | boolean | un
     resolveBaseline(projectDir, values.baseline as string | undefined),
     resolveTsrs(projectDir, values.tsrs as string | undefined),
   ]);
-  const warnings = configWarnings(tsconfigPath);
+  const warnings: string[] = [];
   const portedVersion = tsVersionOf(tsrs.version);
   const baselineVersion = tsVersionOf(baseline.version);
   if (baseline.legacy) {
@@ -168,12 +169,18 @@ function positiveInt(v: string | undefined, def: number, flag: string): number {
   return n;
 }
 
-function configWarnings(tsconfigPath: string): string[] {
+/** A solution-style tsconfig checks no files, which would report a misleading "identical". */
+function rejectSolutionConfig(tsconfigPath: string, tsconfig: string, dir: string): void {
   const config = parseJsonc(readFileSync(tsconfigPath, "utf8"), [], { allowTrailingComma: true }) ?? {};
-  if (Array.isArray(config.references) && Array.isArray(config.files) && config.files.length === 0 && !config.include) {
-    return [`${tsconfigPath} is a solution-style config (references only, no files); point -p at a referenced project.`];
-  }
-  return [];
+  if (!Array.isArray(config.references) || !Array.isArray(config.files) || config.files.length || config.include) return;
+  const base = dirname(tsconfig);
+  const refs = config.references
+    .map((r: { path?: string }) => r.path)
+    .filter((p: unknown): p is string => typeof p === "string")
+    .map((p: string) => `  tsrs-doctor ${dir === "." ? "" : dir + " "}-p ${join(base, p)}`);
+  throw new DoctorError(
+    `${tsconfig} only lists project references, so it type-checks no files. Run one of:\n${refs.join("\n")}`,
+  );
 }
 
 export async function main(argv: string[]): Promise<number> {

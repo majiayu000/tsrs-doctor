@@ -42,7 +42,9 @@ describe("cli", () => {
     expect(report.diagnostics).toMatchObject({ baselineCount: 2, tsrsCount: 2, same: 2 });
     expect(report.perf.tsrs.maxRssBytes.median).toBeGreaterThan(1024 * 1024);
     expect(report.perf.speedup).toBeGreaterThan(0);
-    expect(readFileSync(md, "utf8")).toContain("## Performance");
+    const mdText = readFileSync(md, "utf8");
+    expect(mdText).toContain("## Performance");
+    expect(mdText).toMatch(/img\.shields\.io\/badge\/tsrs-[\d.]+%C3%97%20faster/);
   });
 
   test("a baseline that disagrees is reported as differences, exit 1", () => {
@@ -65,6 +67,34 @@ describe("cli", () => {
     expect(r.code).toBe(1);
     expect(r.out).toContain("CRASH tsrs: exit code 101");
   });
+
+  test("a solution-style tsconfig is an error that lists the referenced projects", () => {
+    const p = join(dir, "solution");
+    mkdirSync(p, { recursive: true });
+    writeFileSync(join(p, "tsconfig.json"), `{ "files": [], "references": [{ "path": "./packages/a" }, { "path": "./tsconfig.lib.json" }] }`);
+    const r = run([p]);
+    expect(r.code).toBe(2);
+    expect(r.err).toContain(`-p packages/a`);
+    expect(r.err).toContain(`-p tsconfig.lib.json`);
+  });
+
+  test("the node launcher forwards arguments and the exit code", () => {
+    const launcher = resolve(import.meta.dir, "..", "bin", "tsrs-doctor.js");
+    const r = Bun.spawnSync(["node", launcher, "--bogus"], { stdout: "pipe", stderr: "pipe" });
+    expect(r.exitCode).toBe(2);
+    expect(r.stderr.toString()).toContain("tsrs-doctor:");
+  });
+
+  test.skipIf(!!Bun.spawnSync(["node", "-p", "process.versions.bun ?? ''"]).stdout.toString().trim())(
+    "the node launcher explains that Bun is required when it is missing",
+    () => {
+      const launcher = resolve(import.meta.dir, "..", "bin", "tsrs-doctor.js");
+      const node = Bun.which("node")!;
+      const r = Bun.spawnSync([node, launcher], { stdout: "pipe", stderr: "pipe", env: { PATH: "/nonexistent" } });
+      expect(r.exitCode).toBe(2);
+      expect(r.stderr.toString()).toContain("needs Bun");
+    },
+  );
 
   test("tool errors exit 2", () => {
     expect(run([join(dir, "nope")]).code).toBe(2);

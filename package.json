@@ -6,9 +6,10 @@
   "author": "majiayu000",
   "type": "module",
   "bin": {
-    "tsrs-doctor": "./src/cli.ts"
+    "tsrs-doctor": "./bin/tsrs-doctor.js"
   },
   "files": [
+    "bin",
     "src"
   ],
   "engines": {
