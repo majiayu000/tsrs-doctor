@@ -70,12 +70,50 @@ describe("cli", () => {
 
   test("a solution-style tsconfig is an error that lists the referenced projects", () => {
     const p = join(dir, "solution");
-    mkdirSync(p, { recursive: true });
+    project("solution/packages/a", { "a.ts": `export const x: number = "s";\n` });
     writeFileSync(join(p, "tsconfig.json"), `{ "files": [], "references": [{ "path": "./packages/a" }, { "path": "./tsconfig.lib.json" }] }`);
     const r = run([p]);
     expect(r.code).toBe(2);
     expect(r.err).toContain(`-p packages/a`);
     expect(r.err).toContain(`-p tsconfig.lib.json`);
+
+    // Run the suggested directory, not an explicit tsconfig path substituted by the test.
+    const command = r.err.match(/^  tsrs-doctor (.+) -p (packages\/a)$/m);
+    expect(command).not.toBeNull();
+    const json = join(dir, "referenced.json");
+    const referenced = run([command![1]!, "-p", command![2]!, "--runs", "1", "--json", json]);
+    expect(referenced.code).toBe(0);
+    expect(referenced.out).toContain("identical diagnostics");
+    const report = JSON.parse(readFileSync(json, "utf8"));
+    expect(report.diagnostics).toMatchObject({ baselineCount: 1, tsrsCount: 1, same: 1 });
+  });
+
+  test("project accepts relative and absolute directories as well as explicit config files", () => {
+    const p = project("directory", { "a.ts": "export {};\n" });
+    for (const config of [".", "./", p, join(p, "tsconfig.json")]) {
+      const r = run([p, "-p", config, "--runs", "1"]);
+      expect(r.code).toBe(0);
+      expect(r.out).toContain("identical diagnostics");
+    }
+  });
+
+  test("a solution-style directory resolves suggestions relative to its config", () => {
+    const p = join(dir, "nested-solution");
+    const solution = join(p, "packages", "solution");
+    mkdirSync(solution, { recursive: true });
+    writeFileSync(join(solution, "tsconfig.json"), `{ "files": [], "references": [{ "path": "../a" }] }`);
+    const r = run([p, "-p", "packages/solution"]);
+    expect(r.code).toBe(2);
+    expect(r.err).toContain("-p packages/a");
+  });
+
+  test("a project directory without tsconfig.json is a tool error", () => {
+    const p = join(dir, "no-config");
+    mkdirSync(p);
+    const r = run([p, "-p", "."]);
+    expect(r.code).toBe(2);
+    expect(r.err).toContain(`tsconfig not found: ${join(p, "tsconfig.json")}`);
+    expect(r.err).not.toContain("EISDIR");
   });
 
   test("the node launcher forwards arguments and the exit code", () => {
