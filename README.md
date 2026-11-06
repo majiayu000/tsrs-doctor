@@ -7,8 +7,13 @@
 
 **Compare tsgo (TypeScript 7) and [tsrs](https://github.com/oxc-project/tsrs), the Rust port of the TypeScript compiler, on your own repo: one command for a diagnostics diff, a speed and memory benchmark, and VS Code setup.**
 
+The npm package is not published yet. Run the CLI from a source checkout:
+
 ```sh
-bunx tsrs-doctor
+git clone https://github.com/majiayu000/tsrs-doctor.git
+cd tsrs-doctor
+bun install --frozen-lockfile
+bun bin/tsrs-doctor.js /path/to/your-project
 ```
 
 ```
@@ -66,11 +71,12 @@ Exit codes: `0` identical diagnostics, `1` differences or a crash/timeout, `2` t
 
 ## Install
 
-Requires [Bun](https://bun.sh), which reads child-process peak memory directly. `npx tsrs-doctor` works too when Bun is installed. Supported platforms are macOS arm64 and Linux x64/arm64, the ones tsrs ships binaries for.
+Requires [Bun](https://bun.sh). Supported platforms are macOS arm64 and Linux x64/arm64, the ones tsrs ships binaries for.
+
+Until the npm package is published, use the source checkout above. From any directory:
 
 ```sh
-bunx tsrs-doctor                 # no install
-bun add -d tsrs-doctor           # or keep it in the project
+bun /absolute/path/to/tsrs-doctor/bin/tsrs-doctor.js /path/to/your-project
 ```
 
 ## Usage
@@ -96,7 +102,13 @@ In a monorepo whose root `tsconfig.json` only lists `references`, tsrs-doctor st
 ```yaml
 - uses: oven-sh/setup-bun@v2
 - run: bun install
-- run: bunx tsrs-doctor --md tsrs-report.md
+- uses: actions/checkout@v4
+  with:
+    repository: majiayu000/tsrs-doctor
+    path: .tools/tsrs-doctor
+- run: bun install --frozen-lockfile
+  working-directory: .tools/tsrs-doctor
+- run: bun .tools/tsrs-doctor/bin/tsrs-doctor.js . --md tsrs-report.md
 - if: always()
   run: cat tsrs-report.md >> "$GITHUB_STEP_SUMMARY"
 ```
@@ -109,7 +121,7 @@ The TypeScript 7 extension looks for an executable named `tsgo` or `tsc` in `js/
 
 ```sh
 bun add -d tsrs
-bunx tsrs-doctor vscode
+bun /absolute/path/to/tsrs-doctor/bin/tsrs-doctor.js vscode .
 ```
 
 This writes two things:
@@ -117,7 +129,7 @@ This writes two things:
 - `.vscode/tsrs-tsdk/tsgo`: a three-line `sh` script that runs `node_modules/.bin/tsrs`. It contains no absolute paths, so you can commit it and every teammate gets the tsrs from the lockfile.
 - Two keys merged into `.vscode/settings.json`, keeping your comments and other settings: `"js/ts.tsdk.path": ".vscode/tsrs-tsdk"` and `"js/ts.experimental.useTsgo": true`.
 
-Before it writes anything, it backs up the original settings into `.vscode/tsrs-tsdk/` (git-ignored). Afterwards it checks that the shim really starts tsrs. `tsrs-doctor vscode --undo` puts back the previous values of those two keys, leaves any other edits you made, and removes the directory.
+Before it writes anything, it backs up the original settings into `.vscode/tsrs-tsdk/` (git-ignored). Afterwards it checks that the shim really starts tsrs. `bun /absolute/path/to/tsrs-doctor/bin/tsrs-doctor.js vscode . --undo` puts back the previous values of those two keys, leaves any other edits you made, and removes the directory.
 
 In VS Code: install `TypeScriptTeam.native-preview`, trust the workspace, accept the prompt to use the workspace version, then run "TypeScript 7: Restart Server".
 
