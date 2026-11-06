@@ -7,7 +7,13 @@
 
 **Compare tsgo (TypeScript 7) and [tsrs](https://github.com/oxc-project/tsrs), the Rust port of the TypeScript compiler, on your own repo: one command for a diagnostics diff, a speed and memory benchmark, and VS Code setup.**
 
-The npm package is not published yet. Run the CLI from a source checkout:
+Install the [published npm package](https://www.npmjs.com/package/tsrs-doctor) with Bun ≥ 1.1:
+
+```sh
+bunx tsrs-doctor@0.1.0 /path/to/your-project
+```
+
+Or run the CLI from a source checkout:
 
 ```sh
 git clone https://github.com/majiayu000/tsrs-doctor.git
